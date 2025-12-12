@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>倫敦復古旅遊手冊 - London Travel Guide</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* 🎨 Custom Tailwind Configuration for Vintage Style */
+        :root {
+            --color-vintage-primary: #8B0000; /* 深紅/勃根地紅 - Accent Color */
+            --color-vintage-secondary: #0A1931; /* 海軍藍/午夜藍 - Dark Text/Background */
+            --color-vintage-light: #F4F0E4; /* 奶油白/米白 - Paper/Card Background */
+            --color-vintage-accent: #B8860B; /* 暗金色 - Subtle Highlight */
+        }
+
+        /* 設置全局字體 */
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: var(--color-vintage-secondary); /* 深藍背景 */
+            color: var(--color-vintage-secondary); /* 預設文字顏色 */
+        }
+
+        /* 標題字體 */
+        .font-display {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* 自訂 Tailwind 顏色 */
+        .bg-vintage-light { background-color: var(--color-vintage-light); }
+        .text-vintage-primary { color: var(--color-vintage-primary); }
+        .border-vintage-primary { border-color: var(--color-vintage-primary); }
+        .bg-vintage-primary { background-color: var(--color-vintage-primary); }
+        .bg-vintage-secondary { background-color: var(--color-vintage-secondary); }
+
+        /* 卡片與按鈕的復古樣式 */
+        .vintage-card {
+            background-color: var(--color-vintage-light);
+            border: 2px solid var(--color-vintage-primary);
+            border-radius: 12px;
+            box-shadow: 6px 6px 0px 0px rgba(139, 0, 0, 0.7); /* 深紅陰影 */
+        }
+
+        .vintage-button {
+            background-color: var(--color-vintage-primary);
+            color: var(--color-vintage-light);
+            border-radius: 9999px; /* 膠囊狀 */
+            box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 0.5);
+            transition: transform 0.1s;
+        }
+
+        .vintage-button:active {
+            transform: translate(1px, 1px);
+            box-shadow: 1px 1px 0px 0px rgba(0, 0, 0, 0.5);
+        }
+
+        /* 行程時間軸專用樣式 */
+        .timeline-line {
+            width: 2px;
+            background-color: var(--color-vintage-primary);
+            margin: 0 auto;
+        }
+        .timeline-dot {
+            width: 12px;
+            height: 12px;
+            background-color: var(--color-vintage-primary);
+            border: 2px solid var(--color-vintage-light);
+            border-radius: 50%;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen pt-12 pb-20">
+
+    <header class="fixed top-0 left-0 right-0 bg-vintage-primary text-vintage-light shadow-xl z-20">
+        <div class="p-3 text-center">
+            <h1 id="app-title" class="text-xl font-display font-bold">🇬🇧 倫敦復古旅遊手冊</h1>
+        </div>
+    </header>
+
+    <main class="p-4 pt-0">
+        <div id="plan-page" class="tab-content"></div>
+        <div id="guide-page" class="tab-content hidden"></div>
+        <div id="wallet-page" class="tab-content hidden"></div>
+        <div id="lists-page" class="tab-content hidden"></div>
+        <div id="info-page" class="tab-content hidden"></div>
+    </main>
+
+    <nav class="fixed bottom-0 left-0 right-0 bg-vintage-secondary border-t-2 border-vintage-primary shadow-2xl z-20">
+        <ul class="flex justify-around items-center h-16 text-vintage-light">
+            <li class="nav-item flex flex-col items-center p-2 cursor-pointer" data-target="plan-page"><i class="fas fa-map-marked-alt text-xl"></i><span class="text-xs mt-1">PLAN</span></li>
+            <li class="nav-item flex flex-col items-center p-2 cursor-pointer" data-target="guide-page"><i class="fas fa-book-open text-xl"></i><span class="text-xs mt-1">GUIDE</span></li>
+            <li class="nav-item flex flex-col items-center p-2 cursor-pointer" data-target="wallet-page"><i class="fas fa-wallet text-xl"></i><span class="text-xs mt-1">WALLET</span></li>
+            <li class="nav-item flex flex-col items-center p-2 cursor-pointer" data-target="lists-page"><i class="fas fa-list-check text-xl"></i><span class="text-xs mt-1">LISTS</span></li>
+            <li class="nav-item flex flex-col items-center p-2 cursor-pointer" data-target="info-page"><i class="fas fa-info-circle text-xl"></i><span class="text-xs mt-1">INFO</span></li>
+        </ul>
+    </nav>
+
+    <script>
+        // ====================================================================
+        // 核心資料結構
+        // ====================================================================
+
+        const TRAVEL_DATA = {
+            exchangeRate: 39.0, // 預設匯率 (1 英鎊 = 39.0 台幣)
+            city: "London",
+            schedule: [
+                {
+                    day: "Day1 12/23",
+                    events: [
+                        { time: "11:00", name: "Airbnb", description: "check-in 行李安置", mapLink: "https://maps.apple/p/ZVVwnoXbs9xEvZ", transport: "11:30前出發, 30min", important: true },
+                        { time: "12:00", name: "西敏寺 (Westminster Abbey)", description: "當場買票。必到！", mapLink: "https://maps.apple/p/YFI8rf8dZ1riWW", transport: "Bus24 30min", important: true },
+                        { time: "14:00", name: "大英博物館 (British Museum)", description: "免費參觀, 注意開放時間。", mapLink: "https://maps.apple/p/VWrIiL1CAvzCLo", transport: "Bus8/Tube 20min" },
+                        { time: "16:00", name: "聖保羅教堂 (St Paul's Cathedral)", description: "登頂欣賞城市風景。", mapLink: "https://maps.apple/p/gRQPLpyyZvTmpJ", transport: "Tube 10min" },
+                        { time: "17:30", name: "波羅市場 (Borough Market)", description: "逛街覓食, 靠近倫敦橋。", mapLink: "https://maps.apple/p/jsLCcc42_huIuo", transport: "Walk 2min" },
+                        { time: "18:00", name: "倫敦橋 (London Bridge)", description: "拍照留念。", mapLink: "https://maps.apple/p/iV2jfw_mFj5cUn", transport: "Walk 15min" },
+                        { time: "18:30", name: "倫敦塔橋 (Tower Bridge)", description: "門票 £12/1per。夜景很美。", mapLink: "https://maps.apple/p/Lmt.M3jDBDWa3a", transport: "Walk 5min" },
+                        { time: "19:00", name: "倫敦塔 (Tower of London)", description: "古老皇室要塞。", mapLink: "https://maps.apple/p/G4cR27STkEGcVY", transport: "Walk 14min" },
+                        { time: "20:00", name: "Skylight Peckham Bar", description: "頂樓酒吧放鬆", mapLink: "https://maps.apple/p/IKf8mzPH8r2TWI", transport: "Walk 10min" },
+                        { time: "21:00", name: "白教堂 (Whitechapel)", description: "尋找開膛手傑克的足跡", mapLink: "https://maps.apple/p/fkyCRE~xMggb2N", transport: "Tube/Bus 20~25min" },
+                        { time: "22:00", name: "千禧橋 (Millennium Bridge)", description: "通往泰特現代美術館。", mapLink: "https://maps.apple/p/K_hJqa.cZaynS~", transport: "Bus 13min / Walk16min" },
+                        { time: "23:00", name: "Dinner - Flat Iron Steak", description: "享用美味牛排", mapLink: "https://maps.apple/p/wBZPrnAjWhkE8G", transport: "回程" },
+                    ]
+                },
+                {
+                    day: "Day2 12/24",
+                    events: [
+                        { time: "09:30", name: "白金漢宮 (Buckingham Palace)", description: "觀看衛兵交接儀式", mapLink: "https://maps.apple/p/gqy.gETMfU~Aid", transport: "Tube 30min", important: true },
+                        { time: "11:00", name: "大笨鐘 (Big Ben) & 國會大廈", description: "經典地標。", mapLink: "https://maps.apple/p/TNaFqyf4f78nfk", transport: "Walk 18min" },
+                        { time: "12:00", name: "倫敦眼 (London Eye)", description: "倫敦全景，可考慮搭乘。", mapLink: "https://maps.apple/p/CX65Paqhar11Tv", transport: "Walk 10min" },
+                        { time: "13:30", name: "特拉法加廣場 (Trafalgar Square)", description: "國家畫廊所在地。", mapLink: "https://maps.apple/p/Id~gWnr6uLEbB-", transport: "Walk 16min" },
+                        { time: "14:30", name: "萊斯特廣場 (Leicester Square)", description: "電影院、劇院區。", mapLink: "https://maps.apple/p/iyfBRoTrYA06T4", transport: "Walk 5min" },
+                        { time: "15:00", name: "中國城 (Chinatown)", description: "吃午餐或點心。", mapLink: "https://maps.apple/p/DHAvimxCwaaxQA", transport: "Walk 5min" },
+                        { time: "16:00", name: "Soho區", description: "咖啡館、酒吧、精品店。", mapLink: "https://maps.apple/p/82qo__JeuKw_dk", transport: "Walk 8min" },
+                        { time: "17:00", name: "攝政街 (Regent Street)", description: "聖誕燈飾必看！", mapLink: "https://maps.apple/p/kI.HBjR-oZWT_r", transport: "Walk 6min" },
+                        { time: "18:00", name: "牛津街 (Oxford Street)", description: "歐洲最繁忙的購物街之一。", mapLink: "https://maps.apple/p/gX9yrfq4xUb5wt", transport: "Walk 5min" },
+                        { time: "19:30", name: "柯芬園 (Covent Garden)", description: "街頭藝人表演。", mapLink: "https://maps.apple/p/e_bf8QcrVuI1uc", transport: "Walk 15min" },
+                    ]
+                }
+            ],
+            checkList: [
+                { id: 1, text: "護照、簽證", done: false },
+                { id: 2, text: "英鎊現金、信用卡", done: false },
+                { id: 3, text: "網卡/E-sim", done: false },
+                { id: 4, text: "英國轉接頭、充電器", done: false },
+                { id: 5, text: "冬季保暖衣物、圍巾、手套", done: false },
+                { id: 6, text: "旅遊保險資料影本", done: false },
+            ],
+            memos: [], // 格式: { id: Date.now(), text: "備忘錄內容" }
+            expenses: [] // 格式: { id: Date.now(), item: "品項", gbp: 12.5, twd: 487.5, image: "base64 string" }
+        };
+
+        // ====================================================================
+        // LocalStorage 讀取與儲存
+        // ====================================================================
+
+        function loadData() {
+            const storedExpenses = localStorage.getItem('travelApp_expenses');
+            if (storedExpenses) {
+                TRAVEL_DATA.expenses = JSON.parse(storedExpenses);
+            }
+            const storedRate = localStorage.getItem('travelApp_exchangeRate');
+            if (storedRate) {
+                TRAVEL_DATA.exchangeRate = parseFloat(storedRate);
+            }
+            const storedCheckList = localStorage.getItem('travelApp_checkList');
+            if (storedCheckList) {
+                TRAVEL_DATA.checkList = JSON.parse(storedCheckList);
+            }
+            const storedMemos = localStorage.getItem('travelApp_memos');
+            if (storedMemos) {
+                TRAVEL_DATA.memos = JSON.parse(storedMemos);
+            }
+        }
+
+        function saveData(key, data) {
+            localStorage.setItem(`travelApp_${key}`, JSON.stringify(data));
+        }
+
+        // ====================================================================
+        // 頁面切換邏輯
+        // ====================================================================
+
+        const tabContents = document.querySelectorAll('.tab-content');
+        const navItems = document.querySelectorAll('.nav-item');
+
+        function switchTab(targetId) {
+            tabContents.forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById(targetId).classList.remove('hidden');
+
+            // 更新導航列 active 狀態 (簡單的顏色切換)
+            navItems.forEach(item => {
+                item.classList.remove('text-vintage-primary');
+                if (item.getAttribute('data-target') === targetId) {
+                    item.classList.add('text-vintage-primary');
+                }
+            });
+
+            // 根據切換的頁面執行渲染
+            if (targetId === 'plan-page') renderPlanPage();
+            if (targetId === 'guide-page') renderGuidePage();
+            if (targetId === 'wallet-page') renderWalletPage();
+            if (targetId === 'lists-page') renderListsPage();
+            if (targetId === 'info-page') renderInfoPage();
+        }
+
+        navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                const target = e.currentTarget.getAttribute('data-target');
+                switchTab(target);
+            });
+        });
+
+        // ====================================================================
+        // 1. PLAN (行程表) 渲染
+        // ====================================================================
+
+        function renderPlanPage() {
+            let html = `<h2 class="text-3xl font-display text-vintage-light mt-4 mb-6 border-b-2 border-vintage-accent pb-2">🗺️ ${TRAVEL_DATA.city} 行程表</h2>`;
+
+            TRAVEL_DATA.schedule.forEach(daySchedule => {
+                html += `<div class="mb-8 p-3 vintage-card">
+                            <h3 class="text-2xl font-display text-vintage-primary border-b border-gray-300 pb-1 mb-4">${daySchedule.day}</h3>
+                            <div class="relative">`;
+
+                daySchedule.events.forEach((event, index) => {
+                    const isImportant = event.important ? 'bg-red-500 text-white' : 'bg-vintage-light';
+                    const importantText = event.important ? '<span class="ml-2 px-2 py-0.5 text-xs font-bold rounded-full bg-red-500 text-white">重要</span>' : '';
+                    const mapButton = `
+                        <a href="${event.mapLink}" target="_blank" class="vintage-button inline-block text-xs px-3 py-1 mt-2 mr-2">
+                            <i class="fas fa-location-dot"></i> 地圖
+                        </a>
+                    `;
+
+                    html += `
+                        <div class="mb-6 relative pl-8">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-vintage-primary"></div>
+                            <div class="absolute left-0 ${isImportant} w-3 h-3 rounded-full border-2 border-vintage-light mt-1" style="transform: translateX(-50%);"></div>
+
+                            <div class="vintage-card p-3 shadow-md">
+                                <p class="text-sm font-bold text-vintage-primary">${event.time} ${importantText}</p>
+                                <p class="text-lg font-display font-semibold mt-1">${event.name}</p>
+                                <p class="text-xs text-gray-600 mb-2">${event.description}</p>
+                                <p class="text-xs italic text-gray-700">交通: ${event.transport}</p>
+                                ${mapButton}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `</div></div>`;
+            });
+
+            document.getElementById('plan-page').innerHTML = html;
+        }
+
+
+        // ====================================================================
+        // 2. GUIDE (深度導覽) 渲染
+        // ====================================================================
+
+        const GUIDE_ARTICLES = [
+            {
+                title: "🏛️ 大英博物館：人類歷史的縮影",
+                text: "大英博物館擁有超過八百萬件藏品，是世界上規模最大、最著名的博物館之一。它的前身是漢斯·斯隆爵士的私人收藏，於1759年開放。必看展品包括羅塞塔石碑、埃及木乃伊以及帕德嫩神廟雕塑群。**冷知識：** 博物館的圓形閱覽室曾是馬克思和列寧常去的地方。",
+                mapHtml: ""
+            },
+            {
+                title: "🌉 倫敦塔橋：維多利亞時代的工藝奇蹟",
+                text: "倫敦塔橋（Tower Bridge）常被誤認為倫敦橋，它是倫敦最著名的地標之一。這座結合了懸索和開啟式功能的橋樑於1894年完成，設計旨在允許大型船隻通過。如今，上層走道已改建成玻璃步道，提供俯瞰泰晤士河的刺激視野。",
+                mapHtml: ""
+            },
+            {
+                title: "🌳 柯芬園：從修道院到購物天堂",
+                text: "柯芬園（Covent Garden）過去曾是花園，後來成為修道院的土地，最後發展成著名的水果和蔬菜市場。現在它是一個充滿活力的購物區，擁有許多精品店、咖啡館和街頭藝人表演。主要的Market Building是必訪之地。",
+                mapHtml: `<h4 class="text-xl font-display text-vintage-primary mt-6 mb-3">📍 OpenStreetMap 區域導覽</h4><iframe class="w-full h-64 border-2 border-vintage-primary" src="https://www.openstreetmap.org/export/embed.html?bbox=-0.1264%2C51.5113%2C-0.1214%2C51.5143&layer=mapnik&marker=51.5128, -0.1239" style="border: 1px solid black;"></iframe>`
+            }
+        ];
+
+        function renderGuidePage() {
+            let html = `<h2 class="text-3xl font-display text-vintage-light mt-4 mb-6 border-b-2 border-vintage-accent pb-2">📰 深度導覽 (GUIDE)</h2>`;
+
+            GUIDE_ARTICLES.forEach(article => {
+                html += `
+                    <div class="vintage-card p-4 mb-6 shadow-xl">
+                        <h3 class="text-2xl font-display text-vintage-primary mb-2">${article.title}</h3>
+                        <p class="text-sm leading-relaxed text-gray-700">${article.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</p>
+                        ${article.mapHtml}
+                    </div>
+                `;
+            });
+
+            document.getElementById('guide-page').innerHTML = html;
+        }
+
+        // ====================================================================
+        // 3. WALLET (記帳與匯率) 渲染與功能
+        // ====================================================================
+
+        function renderWalletPage() {
+            loadData(); // 重新讀取資料以確保最新
+            let html = `
+                <h2 class="text-3xl font-display text-vintage-light mt-4 mb-6 border-b-2 border-vintage-accent pb-2">💰 記帳與匯率</h2>
+
+                <div class="vintage-card p-4 mb-6">
+                    <h3 class="text-2xl font-display text-vintage-primary mb-3">匯率換算機 (£ to NTD)</h3>
+                    <div class="flex items-center mb-4">
+                        <label for="exchangeRate" class="text-sm font-semibold mr-2">目前匯率 (1£ = NT$):</label>
+                        <input type="number" id="exchangeRate" value="${TRAVEL_DATA.exchangeRate}" step="0.1" class="w-20 p-1 border-2 border-vintage-primary rounded-md text-sm text-center">
+                        <button onclick="updateExchangeRate()" class="vintage-button text-sm px-3 py-1 ml-2">儲存</button>
+                    </div>
+
+                    <div class="flex flex-col space-y-3">
+                        <input type="text" id="calcInput" placeholder="輸入算式: 500+200*3" class="w-full p-2 border-2 border-vintage-secondary rounded-md text-xl text-right font-mono">
+                        <div class="grid grid-cols-4 gap-2">
+                            <button onclick="calcAppend('7')" class="calc-btn">7</button>
+                            <button onclick="calcAppend('8')" class="calc-btn">8</button>
+                            <button onclick="calcAppend('9')" class="calc-btn">9</button>
+                            <button onclick="calcAppend('/')" class="calc-btn">÷</button>
+
+                            <button onclick="calcAppend('4')" class="calc-btn">4</button>
+                            <button onclick="calcAppend('5')" class="calc-btn">5</button>
+                            <button onclick="calcAppend('6')" class="calc-btn">6</button>
+                            <button onclick="calcAppend('*')" class="calc-btn">×</button>
+
+                            <button onclick="calcAppend('1')" class="calc-btn">1</button>
+                            <button onclick="calcAppend('2')" class="calc-btn">2</button>
+                            <button onclick="calcAppend('3')" class="calc-btn">3</button>
+                            <button onclick="calcAppend('-')" class="calc-btn">-</button>
+
+                            <button onclick="calcClear()" class="calc-btn bg-red-400">C</button>
+                            <button onclick="calcAppend('0')" class="calc-btn">0</button>
+                            <button onclick="calcAppend('.')" class="calc-btn">.</button>
+                            <button onclick="calcAppend('+')" class="calc-btn">+</button>
+                        </div>
+                        <button onclick="calculateAndConvert()" class="vintage-button text-lg p-2 mt-2 bg-green-600">
+                            = 計算 & 換算 (NT$)
+                        </button>
+                        <p id="calcResult" class="text-center text-xl font-bold mt-3 text-vintage-primary"></p>
+                    </div>
+                </div>
+
+                <div class="vintage-card p-4 mb-6">
+                    <h3 class="text-2xl font-display text-vintage-primary mb-3">新增消費</h3>
+                    <div class="flex flex-col space-y-3">
+                        <input type="text" id="expenseItem" placeholder="品項 (ex: 門票, 午餐)" class="w-full p-2 border-2 border-vintage-secondary rounded-md">
+                        <input type="number" id="expenseGbp" placeholder="英鎊金額 (£)" class="w-full p-2 border-2 border-vintage-secondary rounded-md">
+
+                        <input type="file" id="expensePhoto" accept="image/*" class="hidden" onchange="previewImage(event)">
+                        <button onclick="document.getElementById('expensePhoto').click()" class="vintage-button bg-gray-500 hover:bg-gray-600 text-sm p-2">
+                            <i class="fas fa-camera"></i> 拍照/上傳收據
+                        </button>
+                        <div id="imagePreviewContainer" class="text-center mt-2 hidden">
+                            <p class="text-xs text-gray-500 mb-1">照片預覽 (將被壓縮)</p>
+                            <img id="imagePreview" class="max-w-full max-h-40 mx-auto border border-gray-300 rounded-md">
+                        </div>
+
+                        <button onclick="addExpense()" class="vintage-button bg-blue-600 hover:bg-blue-700 p-2 mt-4">
+                            <i class="fas fa-plus-circle"></i> 儲存記帳
+                        </button>
+                    </div>
+                </div>
+
+                <div class="vintage-card p-4">
+                    <h3 class="text-2xl font-display text-vintage-primary mb-3">記帳歷史</h3>
+                    <p class="text-sm mb-4">總支出: <span id="totalGbp" class="font-bold text-lg text-red-600">£0.00</span> / <span id="totalTwd" class="font-bold text-lg text-red-600">NT$0</span></p>
+                    <div id="expenseList" class="space-y-3">
+                        </div>
+                </div>
+            `;
+            document.getElementById('wallet-page').innerHTML = html;
+            renderExpenseList();
+            document.querySelectorAll('.calc-btn').forEach(btn => {
+                btn.classList.add('p-2', 'bg-vintage-light', 'text-vintage-secondary', 'rounded-md', 'text-xl', 'font-bold', 'border', 'border-vintage-secondary');
+            });
+        }
+
+        // --- 匯率換算器功能 ---
+        function updateExchangeRate() {
+            const rate = parseFloat(document.getElementById('exchangeRate').value);
+            if (rate > 0) {
+                TRAVEL_DATA.exchangeRate = rate;
+                localStorage.setItem('travelApp_exchangeRate', rate);
+                alert(`匯率已更新: 1£ = NT$${rate}`);
+                renderExpenseList(); // 更新列表中的台幣金額
+            } else {
+                alert('請輸入有效的匯率！');
+            }
+        }
+
+        function calcAppend(value) {
+            const input = document.getElementById('calcInput');
+            input.value += value;
+        }
+
+        function calcClear() {
+            document.getElementById('calcInput').value = '';
+            document.getElementById('calcResult').textContent = '';
+        }
+
+        function calculateAndConvert() {
+            const input = document.getElementById('calcInput').value;
+            const resultDisplay = document.getElementById('calcResult');
+            const rate = TRAVEL_DATA.exchangeRate;
+
+            try {
+                // 使用 eval 進行算式計算 (僅用於信任的客戶端輸入)
+                // 將 x 替換為 * 確保兼容性
+                const gbpAmount = eval(input.replace(/×/g, '*').replace(/÷/g, '/')).toFixed(2);
+                const twdAmount = (gbpAmount * rate).toFixed(0);
+
+                resultDisplay.innerHTML = `£${gbpAmount} (英鎊) = **NT$${twdAmount} (台幣)**`;
+            } catch (error) {
+                resultDisplay.textContent = '計算錯誤，請檢查算式。';
+            }
+        }
+
+        // --- 記帳功能核心 ---
+
+        let base64Image = null; // 儲存壓縮後的 Base64 圖片
+
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 200; // 壓縮後的圖片最大寬度
+                    const scaleSize = MAX_WIDTH / img.width;
+                    canvas.width = MAX_WIDTH;
+                    canvas.height = img.height * scaleSize;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                    // 壓縮並轉為 Base64 (JPEG, 品質 0.7)
+                    base64Image = canvas.toDataURL('image/jpeg', 0.7);
+
+                    // 顯示預覽
+                    document.getElementById('imagePreview').src = base64Image;
+                    document.getElementById('imagePreviewContainer').classList.remove('hidden');
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function addExpense() {
+            const item = document.getElementById('expenseItem').value.trim();
+            const gbp = parseFloat(document.getElementById('expenseGbp').value);
+
+            if (!item || isNaN(gbp) || gbp <= 0) {
+                alert('請輸入有效的品項和金額！');
+                return;
+            }
+
+            const twd = (gbp * TRAVEL_DATA.exchangeRate).toFixed(0);
+
+            const newExpense = {
+                id: Date.now(),
+                item: item,
+                gbp: gbp.toFixed(2),
+                twd: twd,
+                image: base64Image
+            };
+
+            TRAVEL_DATA.expenses.unshift(newExpense); // 新增到列表最前面
+            saveData('expenses', TRAVEL_DATA.expenses);
+
+            // 清空表單和預覽
+            document.getElementById('expenseItem').value = '';
+            document.getElementById('expenseGbp').value = '';
+            document.getElementById('expensePhoto').value = '';
+            document.getElementById('imagePreviewContainer').classList.add('hidden');
+            base64Image = null;
+
+            renderExpenseList();
+        }
+
+        function deleteExpense(id) {
+            TRAVEL_DATA.expenses = TRAVEL_DATA.expenses.filter(exp => exp.id !== id);
+            saveData('expenses', TRAVEL_DATA.expenses);
+            renderExpenseList();
+        }
+
+        function renderExpenseList() {
+            const listContainer = document.getElementById('expenseList');
+            if (!listContainer) return; // 確保在正確的頁面
+
+            let totalGbp = 0;
+            let totalTwd = 0;
+            let listHtml = '';
+
+            TRAVEL_DATA.expenses.forEach(exp => {
+                totalGbp += parseFloat(exp.gbp);
+                totalTwd += parseFloat(exp.twd);
+
+                const imageHtml = exp.image
+                    ? `<img src="${exp.image}" alt="收據縮圖" class="w-16 h-16 object-cover rounded-md mr-3 border border-gray-300">`
+                    : '<div class="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center text-gray-500 text-xs mr-3"><i class="fas fa-receipt text-xl"></i></div>';
+
+                listHtml += `
+                    <div class="flex justify-between items-start p-3 border-b border-vintage-accent bg-vintage-light rounded-lg shadow-inner">
+                        <div class="flex items-start flex-grow">
+                            ${imageHtml}
+                            <div>
+                                <p class="font-semibold text-base text-vintage-secondary">${exp.item}</p>
+                                <p class="text-xs text-gray-600">時間: ${new Date(exp.id).toLocaleDateString('zh-TW')} ${new Date(exp.id).toLocaleTimeString('zh-TW')}</p>
+                            </div>
+                        </div>
+                        <div class="text-right flex-shrink-0 ml-2">
+                            <p class="font-bold text-red-600 text-lg">£${exp.gbp}</p>
+                            <p class="text-sm text-gray-700">NT$${exp.twd}</p>
+                            <button onclick="deleteExpense(${exp.id})" class="text-red-400 hover:text-red-600 text-xs mt-1"><i class="fas fa-trash-alt"></i> 刪除</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            listContainer.innerHTML = listHtml || '<p class="text-center text-gray-500 italic">目前沒有記帳紀錄。</p>';
+            document.getElementById('totalGbp').textContent = `£${totalGbp.toFixed(2)}`;
+            document.getElementById('totalTwd').textContent = `NT$${totalTwd.toFixed(0)}`;
+        }
+
+
+        // ====================================================================
+        // 4. LISTS (清單) 渲染與功能
+        // ====================================================================
+
+        function renderListsPage() {
+            loadData();
+            let html = `
+                <h2 class="text-3xl font-display text-vintage-light mt-4 mb-6 border-b-2 border-vintage-accent pb-2">📋 清單與備忘錄</h2>
+
+                <div class="vintage-card p-4 mb-6">
+                    <h3 class="text-2xl font-display text-vintage-primary mb-3">行前準備 CheckList</h3>
+                    <div id="checkListContainer" class="space-y-2">
+                        </div>
+                </div>
+
+                <div class="vintage-card p-4">
+                    <h3 class="text-2xl font-display text-vintage-primary mb-3">個人備忘錄</h3>
+                    <div class="flex mb-3">
+                        <input type="text" id="memoInput" placeholder="輸入備忘事項或網址" class="flex-grow p-2 border-2 border-vintage-secondary rounded-l-md">
+                        <button onclick="addMemo()" class="vintage-button bg-blue-600 px-3 rounded-r-md rounded-l-none">新增</button>
+                    </div>
+                    <div id="memoListContainer" class="space-y-2">
+                        </div>
+                </div>
+            `;
+            document.getElementById('lists-page').innerHTML = html;
+            renderCheckList();
+            renderMemoList();
+        }
+
+        // --- CheckList 功能 ---
+        function toggleCheckListItem(id) {
+            const item = TRAVEL_DATA.checkList.find(i => i.id === id);
+            if (item) {
+                item.done = !item.done;
+                saveData('checkList', TRAVEL_DATA.checkList);
+                renderCheckList();
+            }
+        }
+
+        function renderCheckList() {
+            const container = document.getElementById('checkListContainer');
+            if (!container) return;
+
+            container.innerHTML = TRAVEL_DATA.checkList.map(item => `
+                <div class="flex items-center p-2 bg-gray-100 rounded-md hover:bg-gray-200 transition duration-150 ease-in-out">
+                    <input type="checkbox" id="check-${item.id}" ${item.done ? 'checked' : ''} onchange="toggleCheckListItem(${item.id})" class="form-checkbox h-5 w-5 text-vintage-primary border-gray-300 rounded focus:ring-0 cursor-pointer">
+                    <label for="check-${item.id}" class="ml-3 text-base ${item.done ? 'line-through text-gray-500 italic' : 'font-medium text-vintage-secondary'} flex-grow cursor-pointer">${item.text}</label>
+                </div>
+            `).join('');
+        }
+
+        // --- 備忘錄功能 ---
+        function addMemo() {
+            const input = document.getElementById('memoInput');
+            const text = input.value.trim();
+            if (text) {
+                TRAVEL_DATA.memos.unshift({ id: Date.now(), text: text });
+                saveData('memos', TRAVEL_DATA.memos);
+                input.value = '';
+                renderMemoList();
+            }
+        }
+
+        function deleteMemo(id) {
+            TRAVEL_DATA.memos = TRAVEL_DATA.memos.filter(memo => memo.id !== id);
+            saveData('memos', TRAVEL_DATA.memos);
+            renderMemoList();
+        }
+
+        function renderMemoList() {
+            const container = document.getElementById('memoListContainer');
+            if (!container) return;
+
+            container.innerHTML = TRAVEL_DATA.memos.map(memo => {
+                // 檢查是否為網址
+                const urlRegex = /^(https?:\/\/[^\s]+)$/i;
+                const isUrl = urlRegex.test(memo.text);
+
+                const content = isUrl
+                    ? `<a href="${memo.text}" target="_blank" class="vintage-button bg-green-500 text-sm px-3 py-1 mt-1 inline-block"><i class="fas fa-link"></i> 開啟連結</a>`
+                    : `<p class="text-sm">${memo.text}</p>`;
+
+                return `
+                    <div class="flex justify-between items-start p-2 bg-gray-100 rounded-md border-l-4 border-vintage-accent">
+                        <div class="flex-grow pr-2">
+                            ${isUrl ? `<p class="text-sm font-semibold text-blue-700 truncate">${memo.text}</p>` : content}
+                            ${isUrl ? content : ''}
+                        </div>
+                        <button onclick="deleteMemo(${memo.id})" class="text-red-400 hover:text-red-600 text-lg"><i class="fas fa-times-circle"></i></button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ====================================================================
+        // 5. INFO (資訊) 渲染
+        // ====================================================================
+
+        function renderInfoPage() {
+            const infoData = {
+                weatherLink: "https://www.metoffice.gov.uk/", // 英國氣象廳
+                emergency: [
+                    { service: "警察/救護車/消防", number: "999 或 112", description: "緊急情況撥打" },
+                    { service: "非緊急醫療專線", number: "111", description: "需要醫療建議但非緊急" },
+                    { service: "非緊急警察", number: "101", description: "非緊急犯罪舉報" },
+                    { service: "駐英國臺北代表處", number: "+44 (0)20 7881 2050", description: "急難救助電話" },
+                ],
+                taboos: [
+                    "禮儀：在英國，『請 (Please)』、『謝謝 (Thank you)』和『對不起 (Sorry)』是必須的。",
+                    "小費：通常會在餐廳給予10-15%的小費（若帳單未包含服務費）。",
+                    "排隊：英國人非常重視排隊（Queue）的文化，請勿插隊。",
+                    "交通：行人和駕駛皆靠左行，過馬路時請先看右邊，再看左邊。",
+                    "違禁品：嚴禁攜帶肉製品、乳製品、植物、槍枝、毒品等進入英國。",
+                ]
+            };
+
+            let html = `
+                <h2 class="text-3xl font-display text-vintage-light mt-4 mb-6 border-b-2 border-vintage-accent pb-2">ℹ️ 當地重要資訊</h2>
+
+                <div class="vintage-card p-4 mb-6 text-center">
+                    <h3 class="text-2xl font-display text-vintage-primary mb-3">當地天氣預報</h3>
+                    <a href="${infoData.weatherLink}" target="_blank" class="vintage-button bg-orange-600 text-lg px-6 py-2">
+                        <i class="fas fa-cloud-sun"></i> 查看英國氣象廳
+                    </a>
+                </div>
+
+                <div class="vintage-card p-4 mb-6">
+                    <h3 class="text-2xl font-display text-vintage-primary mb-3">緊急聯絡資訊</h3>
+                    <div class="space-y-3">
+                        ${infoData.emergency.map(item => `
+                            <div class="border-b pb-2 border-vintage-accent">
+                                <p class="font-bold text-lg">${item.service}: <a href="tel:${item.number.replace(/\s/g, '')}" class="text-blue-600 hover:text-blue-800">${item.number}</a></p>
+                                <p class="text-sm text-gray-600">${item.description}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div class="vintage-card p-4">
+                    <h3 class="text-2xl font-display text-vintage-primary mb-3">旅遊注意事項</h3>
+                    <ul class="list-disc pl-5 space-y-2 text-sm text-gray-700">
+                        ${infoData.taboos.map(item => `
+                            <li class="border-l-4 border-vintage-accent pl-2">${item}</li>
+                        `).join('')}
+                    </ul>
+                </div>
+            `;
+            document.getElementById('info-page').innerHTML = html;
+        }
+
+        // ====================================================================
+        // 初始化
+        // ====================================================================
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData(); // 載入 LocalStorage 資料
+            switchTab('plan-page'); // 預設顯示行程表
+        });
+    </script>
+</body>
+</html>
