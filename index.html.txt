@@ -1,0 +1,130 @@
+import React, { useState } from 'react';
+import { Calendar, BookOpen, Wallet as WalletIcon, CheckSquare, Info as InfoIcon } from 'lucide-react';
+import Plan from './components/Plan';
+import Guide from './components/Guide';
+import Wallet from './components/Wallet';
+import Lists from './components/Lists';
+import Info from './components/Info';
+
+type Tab = 'plan' | 'guide' | 'wallet' | 'lists' | 'info';
+
+const App: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<Tab>('plan');
+
+  const renderContent = () => {
+    // Wrapper div triggers the animation on key change
+    return (
+      <div key={activeTab} className="animate-receipt-entry">
+        {(() => {
+          switch (activeTab) {
+            case 'plan': return <Plan />;
+            case 'guide': return <Guide />;
+            case 'wallet': return <Wallet />;
+            case 'lists': return <Lists />;
+            case 'info': return <Info />;
+            default: return <Plan />;
+          }
+        })()}
+      </div>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-paper bg-paper-texture text-ink font-typewriter selection:bg-ink selection:text-paper flex flex-col max-w-md mx-auto shadow-2xl min-w-[320px]">
+      
+      {/* Receipt Header */}
+      <header className="pt-6 pb-2 px-6 bg-paper relative z-50 border-b-2 border-ink border-dashed">
+        <div className="flex justify-between items-end mb-2">
+            <div className="border border-ink p-1">
+                <div className="text-[10px] uppercase font-bold leading-none">Table No.</div>
+                <div className="text-xl font-stamp text-stamp leading-none">05</div>
+            </div>
+            <div className="text-right">
+                <div className="text-[10px] uppercase font-bold text-ink">Check No.</div>
+                <div className="text-2xl font-stamp text-stamp tracking-widest leading-none">2025-26</div>
+            </div>
+        </div>
+        
+        <div className="text-center py-2">
+            <h1 className="font-script text-5xl text-ink rotate-[-2deg]">Zhuang² Trip</h1>
+            <p className="font-condensed text-xs uppercase tracking-[0.2em] mt-2">Your Patronage Is Appreciated</p>
+        </div>
+        
+        {/* Table Headers */}
+        <div className="grid grid-cols-4 gap-2 mt-4 text-[10px] uppercase font-bold border-t-2 border-b-2 border-ink py-1 text-center">
+            <div className="col-span-1 border-r border-ink">Date</div>
+            <div className="col-span-2 border-r border-ink">Description</div>
+            <div className="col-span-1">Amount</div>
+        </div>
+      </header>
+
+      {/* Main Content Area */}
+      <main className="flex-1 min-h-screen pb-24 relative bg-paper bg-paper-texture overflow-hidden">
+        {renderContent()}
+      </main>
+
+      {/* Bottom Navigation - Receipt Footer Style */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-paper border-t-4 border-double border-ink pb-safe pt-2 px-2 z-50 max-w-md mx-auto">
+        <div className="flex justify-around items-end pb-2">
+          <NavButton 
+            active={activeTab === 'plan'} 
+            onClick={() => setActiveTab('plan')} 
+            icon={<Calendar size={18} />} 
+            label="PLAN" 
+          />
+          <NavButton 
+            active={activeTab === 'guide'} 
+            onClick={() => setActiveTab('guide')} 
+            icon={<BookOpen size={18} />} 
+            label="GUIDE" 
+          />
+          
+          {/* Center Stamp */}
+          <button 
+            onClick={() => setActiveTab('wallet')}
+            className={`flex flex-col items-center justify-center -mt-8 w-14 h-14 rounded-full border-2 border-ink border-dashed transition-all ${
+                activeTab === 'wallet' ? 'bg-stamp text-paper rotate-12 scale-110 shadow-lg animate-stamp-pulse' : 'bg-paper text-ink rotate-3 hover:rotate-0'
+            }`}
+          >
+            <WalletIcon size={24} />
+          </button>
+
+          <NavButton 
+            active={activeTab === 'lists'} 
+            onClick={() => setActiveTab('lists')} 
+            icon={<CheckSquare size={18} />} 
+            label="LISTS" 
+          />
+          <NavButton 
+            active={activeTab === 'info'} 
+            onClick={() => setActiveTab('info')} 
+            icon={<InfoIcon size={18} />} 
+            label="INFO" 
+          />
+        </div>
+        <div className="text-center text-[10px] font-condensed uppercase tracking-widest text-ink/50 py-1">
+            Thank You -- Call Again
+        </div>
+      </nav>
+    </div>
+  );
+};
+
+const NavButton: React.FC<{
+  active: boolean;
+  onClick: () => void;
+  icon: React.ReactNode;
+  label: string;
+}> = ({ active, onClick, icon, label }) => (
+  <button 
+    onClick={onClick} 
+    className={`flex flex-col items-center gap-1 w-16 py-1 transition-all ${
+      active ? 'text-stamp font-bold scale-105' : 'text-ink/60 hover:text-ink'
+    }`}
+  >
+    {icon}
+    <span className="text-[10px] font-condensed uppercase tracking-wider">{label}</span>
+  </button>
+);
+
+export default App;
